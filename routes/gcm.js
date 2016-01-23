@@ -16,13 +16,53 @@ router.post('/sendmessage', function (req, res, next) {
     var userWhoSend = req.body.fromUserName;
     var userSenderPic = req.body.fromUserPic;
     var messageBody = req.body.msg;
+    var view=req.body.frag;
     var gcmKeyToSendNotificationToUser;
 
     var message = new gcm.Message();
     message.addData('message', messageBody);
     message.addData('title', userWhoSend);
     message.addData('pic', userSenderPic);
+    message.addData('frag',view);
+    var sender = new gcm.Sender('AIzaSyBtPwemSZxg9qIJeN85LHZisVxJpozX1Hg');
+    //Get GCM Key to send notification
+    myFirebaseRef.child("users/" + userIdToNotify + "/gcm").on("value", function (snapshot) {
+        console.log(snapshot.val());
+        gcmKeyToSendNotificationToUser = snapshot.val();
+        //After receiving key Now Send Message
+       try {
+           sender.send(message, gcmKeyToSendNotificationToUser, function (err, response) {
+               if (err) console.error(err);
+               else    console.log(response);
+           });
+       }catch(err){
+           console.error(err);
+       }
+    });
 
+
+    res.send("done");
+
+});
+
+
+router.post('/sendrequest', function (req, res, next) {
+    console.log(req.body.toUser);
+    console.log(req.body.fromUser);
+    console.log(req.body.fromUserPic);
+    console.log(req.body.msg);
+    var userIdToNotify = req.body.toUser;
+    var userWhoSend = req.body.fromUserName;
+    var userSenderPic = req.body.fromUserPic;
+    var messageBody = req.body.msg;
+    var view=req.body.frag;
+    var gcmKeyToSendNotificationToUser;
+
+    var message = new gcm.Message();
+    message.addData('message', messageBody);
+    message.addData('title', userWhoSend);
+    message.addData('pic', userSenderPic);
+    message.addData('frag',view);
     var sender = new gcm.Sender('AIzaSyBtPwemSZxg9qIJeN85LHZisVxJpozX1Hg');
     //Get GCM Key to send notification
     myFirebaseRef.child("users/" + userIdToNotify + "/gcm").on("value", function (snapshot) {
